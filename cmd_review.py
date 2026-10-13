@@ -80,7 +80,7 @@ def run(path, marker_literal, since, before, editor_override, stamp):
             if streak >= 3:
                 nag = "this marker has survived %d sessions. you should really clean that up!" % streak
             ui.review_banner(file_path, index, total, cleaned, len(kept), sessions,
-                             first, text.splitlines(), verdict, nag)
+                             first, text.splitlines(), verdict, nag, marker_literal)
 
             options = ["enter", "q"]
             if stamp and not first.malformed:
