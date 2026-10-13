@@ -91,10 +91,12 @@ def review_banner(file_path, file_index, file_total, files_cleaned, remaining,
 
 def read_key(options):
     """Wait for a single keypress. options e.g. ['enter','q'] or ['enter','r','q']."""
-    prompt_text = "  [Enter] open editor \u00b7 [q] quit"
+    prompt_text = "  [Enter] open editor"
     if "r" in options:
-        prompt_text = "  [Enter] open editor \u00b7 [r] stamp reviewed \u00b7 [q] quit"
-    prompt_text += "  > "
+        prompt_text += " \u00b7 [r] stamp reviewed"
+    if "s" in options:
+        prompt_text += " \u00b7 [s] skip file"
+    prompt_text += " \u00b7 [q] quit  > "
     if _HAVE_PTK and is_tty():
         bindings = prompt_toolkit.key_binding.KeyBindings()
 
@@ -106,6 +108,8 @@ def read_key(options):
         bindings.add("enter")(_make("enter"))
         if "r" in options:
             bindings.add("r")(_make("r"))
+        if "s" in options:
+            bindings.add("s")(_make("s"))
         bindings.add("q")(_make("q"))
         bindings.add("c-c")(_make("q"))
         session = prompt_toolkit.PromptSession(key_bindings=bindings, mouse_support=False)
@@ -121,4 +125,6 @@ def read_key(options):
         return "q"
     if answer == "r" and "r" in options:
         return "r"
+    if answer == "s" and "s" in options:
+        return "s"
     return "enter"

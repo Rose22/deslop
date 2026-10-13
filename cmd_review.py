@@ -33,13 +33,17 @@ def _stamp(path, marker_literal, entry):
 
     return True
 
-def _summary(cleaned, total, removed, stamped, dirty, interrupted):
+def _summary(cleaned, total, removed, stamped, skipped, dirty, interrupted):
     print("")
     print("deslop interrupted." if interrupted else "deslop complete.")
     print("  files cleaned: %d/%d" % (cleaned, total))
     print("  markers removed: %d" % removed)
     if stamped:
         print("  markers stamped reviewed: %d" % stamped)
+    if skipped:
+        print("  skipped (NOT cleaned):")
+        for path in skipped:
+            print("    " + path)
     if dirty:
         print("  left dirty:")
         for path in dirty:
@@ -56,6 +60,7 @@ def run(path, marker_literal, since, before, editor_override, stamp):
     cleaned = 0
     removed = 0
     stamped = 0
+    skipped = []
     dirty = []
     interrupted = False
     total = len(files)
@@ -82,15 +87,19 @@ def run(path, marker_literal, since, before, editor_override, stamp):
             ui.review_banner(file_path, index, total, cleaned, len(kept), sessions,
                              first, text.splitlines(), verdict, nag, marker_literal)
 
-            options = ["enter", "q"]
+            options = ["enter", "q", "s"]
             if stamp and not first.malformed:
                 options.append("r")
             key = ui.read_key(options)
 
+            if key == "s":
+                skipped.append(file_path)
+                break
+
             if key == "q":
                 interrupted = True
                 dirty.append(file_path)
-                _summary(cleaned, total, removed, stamped, dirty, interrupted)
+                _summary(cleaned, total, removed, stamped, skipped, dirty, interrupted)
                 return
 
             if key == "r":
@@ -115,4 +124,4 @@ def run(path, marker_literal, since, before, editor_override, stamp):
                 streak = 0
                 verdict = "edited, still dirty"
 
-    _summary(cleaned, total, removed, stamped, dirty, interrupted)
+    _summary(cleaned, total, removed, stamped, skipped, dirty, interrupted)
