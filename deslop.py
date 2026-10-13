@@ -24,6 +24,8 @@ def parse_date_arg(text, flag):
         print("error: %s expects YYYY-MM-DD, got '%s'" % (flag, text))
         sys.exit(2)
 
+SUBCOMMANDS = ("review", "stats", "list")
+
 def main():
     parser = argparse.ArgumentParser(
         prog="deslop",
@@ -43,7 +45,12 @@ def main():
     p_list = subs.add_parser("list", help="list unreviewed markers (skips reviewed and clean files)")
     add_common(p_list)
 
-    args = parser.parse_args()
+    # review is the default command: `deslop my_project` == `deslop review my_project`
+    argv = sys.argv[1:]
+    if argv and argv[0] not in SUBCOMMANDS and argv[0] not in ("-h", "--help"):
+        argv = ["review"] + argv
+
+    args = parser.parse_args(argv)
     if not args.command:
         parser.print_help()
         sys.exit(1)
